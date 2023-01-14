@@ -1,0 +1,18 @@
+# Drmix CMake file
+file(GLOB_RECURSE Drmix_Src LIST_DIRECTORIES false 
+    *.cpp
+    **/*.cpp)
+
+add_executable(DrmixMain ${Drmix_Src})
+
+target_include_directories(DrmixMain PRIVATE .)
+
+target_link_libraries(DrmixMain PRIVATE
+    glfw
+    glm
+    stb
+    glad
+    spdlog::spdlog_header_only
+)
+
+install(TARGETS DrmixMain DESTINATION bin)
