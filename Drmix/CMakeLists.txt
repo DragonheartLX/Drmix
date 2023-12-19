@@ -22,7 +22,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(Stb REQUIRED)
     target_include_directories(DrmixMain PRIVATE ${Stb_INCLUDE_DIR})
 
-  find_package(imgui CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
   target_link_libraries(DrmixMain PRIVATE imgui::imgui)
 
 install(TARGETS DrmixMain DESTINATION bin)

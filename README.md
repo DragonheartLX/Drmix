@@ -4,15 +4,21 @@ DragonheartLX的练习集
 ### 编译
 - CMake Version >= 3.13
 - Visual Studio 2022 (recommend)
-- MinGW Version 12.2.0
 - Only tested on Windows with x64
+- Vcpkg
 
 1. 克隆仓库
     ```cmd 
     git clone https://github.com/DragonheartLX/Drmix.git
     cd Drmix 
     ```
-2. 使用 CMake 编译
+
+2. 使用vcpkg安装依赖
+    ```cmd
+    vcpkg install glfw3 glad imgui glm spdlog stb
+    ```
+
+3. 使用 CMake 编译
     ```cmd
     mkdir build
     cd build
@@ -30,11 +36,11 @@ DragonheartLX的练习集
 
 
 ### 依赖
-|       Dependence name     |    Version    |
-|       :-------------      |    :------    |
-| GLFW                      | 3.3.8         |
-| glad                      | 4.6 core      |
-| glm                       | 0.9.9.8       |
-| stb_image.h               | 2.27x         |
-| stb_image_write.h         | 1.16          |
-| spdlog                    | 1.10.0        |
+|       Dependence name     |    Version(vcpkg version)     |
+|       :-------------      |              :------          |
+| glfw3                     | 3.3.8#2                       |
+| glad                      | 0.1.36 core                   |
+| glm                       | 2023-06-08                    |
+| stb                       | 2023-04-11#1                  |
+| spdlog                    | 1.12.0                        |
+| imgui                     | 1.89.9                        |
