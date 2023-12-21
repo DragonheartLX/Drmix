@@ -12,9 +12,6 @@ double framePerSecond = 60;
 int winWidth = 1440;
 int winHeigh = 1080;
 
-void processInput(GLFWwindow *window);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
 int main(int argc, char** argv)
 {
     // Spdlog init
@@ -67,31 +64,12 @@ int main(int argc, char** argv)
     const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    double vertices[] =
-    {
-        -0.5f,  -0.5f,  0.0f,
-         0.5f,  -0.5f,  0.0f,
-         0.0f,   0.5f,  0.0f
-    };
-    float clearColor[3] = { 0.2f, 0.3f, 0.3 };
-    float color[3] = { 0.09f, 0.09f, 0.43f };
-
-    unsigned int vbo, vao;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    Shader shader("../../../Drmix/res/Shader/Basic.vert", "../../../Drmix/res/Shader/Basic.frag");
+    Mixture* currentMixture = nullptr;
+    MenuMixture* menu = new MenuMixture(currentMixture);
+    currentMixture = menu;
+    
+    menu->registerMixture<BasicMixture>("Basic Nixture");
+    menu->registerMixture<Texture2DMixture>("Texture2D Mixture");
 
     // Main loop
     // Delta time
@@ -112,23 +90,31 @@ int main(int argc, char** argv)
         if (1.0f / framePerSecond < time - lastRenderTime)
         {
             lastRenderTime = time;
+            currentMixture->update(time - lastRenderTime);
 
             // Render
-            glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0f);
+            glClearColor(0.16f, 0.16f, 0.16f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            ImGui::SetWindowFontScale(1.5f);
+            
+            if (currentMixture != menu && ImGui::Button("Back to menu"))
+            {
+                delete currentMixture;
+                currentMixture = menu;
+            }
 
-            ImGui::ColorEdit3("Clear color", clearColor);
-            ImGui::ColorEdit3("Color", color);
+            if (currentMixture != menu)
+                ImGui::SameLine();
+            if (ImGui::Button("Exit"))
+                glfwSetWindowShouldClose(mainWin, GLFW_TRUE);
 
-            shader.enable();
+            currentMixture->imguiRender();
 
-            shader.setUniform4f("color", color[0], color[1], color[2], 1.0f);
-            glBindVertexArray(vao);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            currentMixture->render();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -140,9 +126,11 @@ int main(int argc, char** argv)
         glfwPollEvents();
     };
 
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+    delete currentMixture;
 
+    if (menu != currentMixture)
+        delete menu;
+    
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -150,15 +138,3 @@ int main(int argc, char** argv)
     spdlog::info("Drmix exit.");
     return 0;
 }
-
-void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-};
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    spdlog::info("Set viewport to: {0:d}x{1:d}", width, height);
-    glViewport(0, 0, width, height);
-};
