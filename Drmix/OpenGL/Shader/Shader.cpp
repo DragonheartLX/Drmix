@@ -34,7 +34,7 @@ Shader::~Shader()
 	glDeleteProgram(m_shaderID);
 }
 
-void Shader::enable()
+void Shader::enable() const
 {
 	glUseProgram(m_shaderID);
 }

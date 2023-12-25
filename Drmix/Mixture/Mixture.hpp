@@ -3,6 +3,8 @@
 #include <functional>
 #include <string>
 #include <spdlog/spdlog.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 class Mixture
 {
@@ -10,6 +12,7 @@ public:
 	Mixture() {};
 	virtual ~Mixture() {};
 
+	virtual void event(GLFWwindow* win) {};
 	virtual void update(double deltaTime) {};
 	virtual void render() {};
 	virtual void imguiRender() {};

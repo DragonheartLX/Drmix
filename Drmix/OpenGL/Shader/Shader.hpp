@@ -14,7 +14,7 @@ public:
 	Shader(const std::string vertex, const std::string fragment);
 	~Shader();
 
-	void enable();
+	void enable() const;
 
 	void setUniform1i(const std::string& name, int value);
 	void setUniform1f(const std::string& name, float value);

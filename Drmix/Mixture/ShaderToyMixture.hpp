@@ -1,20 +1,22 @@
 #pragma once
+
 #include "Mixture.hpp"
 #include "OpenGL/Shader/Shader.hpp"
 
-class Texture2DMixture: public Mixture
+class ShaderToyMixture:public Mixture
 {
 public:
-	Texture2DMixture();
-	~Texture2DMixture();
+	ShaderToyMixture();
+	~ShaderToyMixture();
 
+	void event(GLFWwindow* win) override;
 	void update(double deltaTime) override;
 	void render() override;
 	void imguiRender() override;
-
 private:
-	double m_vertices[32];
+
+	double m_vertices[12];
 	unsigned int m_indices[6];
-	unsigned int m_VAO, m_VBO, m_EBO, m_texture[2];
-	Shader m_shader;
+	unsigned int m_VAO, m_VBO, m_EBO;
+	Shader* m_shader;
 };

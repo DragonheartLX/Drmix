@@ -55,7 +55,7 @@ int main(int argc, char** argv)
         glVersion = (unsigned char*)glGetString(GL_VERSION);
         spdlog::info("Status: Using GL {0}", (char*)glVersion);
     }
-
+    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(mainWin, true);
     ImGui::StyleColorsDark();
@@ -70,6 +70,8 @@ int main(int argc, char** argv)
     
     menu->registerMixture<BasicMixture>("Basic Nixture");
     menu->registerMixture<Texture2DMixture>("Texture2D Mixture");
+    menu->registerMixture<ShaderToyMixture>("ShaderToy Mixture");
+    menu->registerMixture<BatchRenderMixture>("BatchRender Mixture");
 
     // Main loop
     // Delta time
@@ -86,6 +88,7 @@ int main(int argc, char** argv)
 
         // Event
         processInput(mainWin);
+        currentMixture->event(mainWin);
 
         if (1.0f / framePerSecond < time - lastRenderTime)
         {

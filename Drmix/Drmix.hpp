@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Shader/Shader.hpp"
+#include "OpenGL/Shader/Shader.hpp"
 #include "Mixture/Mixture.hpp"
 #include "Mixture/BasicMixture.hpp"
 #include "Mixture/Texture2DMixture.hpp"
+#include "Mixture/ShaderToyMixture.hpp"
+#include "Mixture/BatchRenderMixture.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
