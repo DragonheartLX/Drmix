@@ -9,3 +9,5 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 project(Drmix)
 
 add_subdirectory(Drmix)
+add_subdirectory(Mixture)
+

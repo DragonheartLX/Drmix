@@ -1,28 +1,30 @@
-# Drmix CMake file
-file(GLOB_RECURSE Drmix_Src LIST_DIRECTORIES false 
+# Drmix core
+file(GLOB_RECURSE DrmixCore_SRC LIST_DIRECTORIES false 
     *.cpp
     **/*.cpp)
 
-add_executable(DrmixMain ${Drmix_Src})
+project(DrmixCore)
 
-target_include_directories(DrmixMain PRIVATE .)
+add_library(DrmixCore STATIC ${DrmixCore_SRC})
+
+target_include_directories(DrmixCore PUBLIC .)
 
 find_package(glad CONFIG REQUIRED)
-    target_link_libraries(DrmixMain PRIVATE glad::glad)
+    target_link_libraries(DrmixCore PRIVATE glad::glad)
 
 find_package(glfw3 CONFIG REQUIRED)
-    target_link_libraries(DrmixMain PRIVATE glfw)
+    target_link_libraries(DrmixCore PRIVATE glfw)
 
 find_package(glm CONFIG REQUIRED)
-    target_link_libraries(DrmixMain PRIVATE glm::glm)
+    target_link_libraries(DrmixCore PRIVATE glm::glm)
 
 find_package(spdlog CONFIG REQUIRED)
-    target_link_libraries(DrmixMain PRIVATE spdlog::spdlog_header_only)
-
-find_package(Stb REQUIRED)
-    target_include_directories(DrmixMain PRIVATE ${Stb_INCLUDE_DIR})
+    target_link_libraries(DrmixCore PRIVATE spdlog::spdlog_header_only)
 
 find_package(imgui CONFIG REQUIRED)
-  target_link_libraries(DrmixMain PRIVATE imgui::imgui)
+    target_link_libraries(DrmixCore PRIVATE imgui::imgui)
 
-install(TARGETS DrmixMain DESTINATION bin)
+find_package(Stb REQUIRED)
+    target_include_directories(DrmixCore PRIVATE ${Stb_INCLUDE_DIR})
+
+install(TARGETS DrmixCore DESTINATION lib)

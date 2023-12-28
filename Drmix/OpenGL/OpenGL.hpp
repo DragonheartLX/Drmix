@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Shader/Shader.hpp"
-
-#include "Renderer/Renderer.hpp"
-#include "Renderer/VertexBuffer.hpp"
-#include "Renderer/VertexArrayBuffer.hpp"
-#include "Renderer/IndexBuffer.hpp"
+#include "OpenGL/VertexBuffer.hpp"
+#include "OpenGL/IndexBuffer.hpp"
+#include "OpenGL/VertexArrayBuffer.hpp"
+#include "OpenGL/Texture.hpp"
+#include "OpenGL/Shader.hpp"
+#include "OpenGL/Renderer.hpp"

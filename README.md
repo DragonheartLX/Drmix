@@ -15,7 +15,13 @@ DragonheartLX的练习集
 
 2. 使用vcpkg安装依赖
     ```cmd
-    vcpkg install glfw3 glad imgui glm spdlog stb
+    vcpkg install glfw3 glad glm spdlog stb imgui[glfw-binding,opengl3-binding,docking-experimental]
+    ```
+
+    #### 注意! 如果提示imgui头文件include错误, 请尝试重新安装
+    ```cmd
+    vcpkg remove imgui
+    vcpkg install imgui[glfw-binding,opengl3-binding,docking-experimental]
     ```
 
 3. 使用 CMake 编译
