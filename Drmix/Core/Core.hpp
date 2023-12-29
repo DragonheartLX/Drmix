@@ -24,7 +24,6 @@ namespace Drmix
 
 		static Drmix* getInstance();
 		GLFWwindow* mainWindow;
-		OpenGL::Renderer* mainRenderer;
 	private:
 		static Drmix* m_Instance;
 	};

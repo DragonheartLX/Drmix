@@ -1,55 +1,23 @@
 #include "ShaderToyMixture.hpp"
 
-ShaderToyMixture::ShaderToyMixture()
+ShaderToyMixture::ShaderToyMixture():
+	m_VAO(nullptr),
+	m_VBO(nullptr),
+	m_EBO(nullptr),
+	m_Shader(nullptr)
 {
-	setRenderImGui();
+	info.name = "ShaderToyMixture";
+	info.resourcePath = "../../../../Mixture/ShaderToyMixture";
+	info.imGuiRender = true;
 }
 
 ShaderToyMixture::~ShaderToyMixture()
 {
-	for (std::pair obj : objects)
-		delete obj.second;
+
 }
 
 void ShaderToyMixture::onEnter()
 {
-	objects.insert(std::pair("Canvas", new Canvas()));
-}
-
-void ShaderToyMixture::update()
-{
-	auto it = objects.find("Canvas");
-	if (it != objects.end())
-	{
-		it->second->shader->bind();
-		it->second->shader->setUniform1f("iTime", (float)getTime());
-	}
-}
-
-void ShaderToyMixture::fixedUpdate(double deltaTime)
-{
-}
-
-void ShaderToyMixture::imGuiRender()
-{
-	if (ImGui::Button("Exit"))
-		setMixtureShouldClose();
-
-	if (ImGui::Button("Reload Shader"))
-	{
-		auto it = objects.find("Canvas");
-		if (it != objects.end())
-		{
-			it->second->shader->reload("../../../../Mixture/ShaderToyMixture/ShaderToy.vert", "../../../../Mixture/ShaderToyMixture/ShaderToy.frag");
-		}
-	}
-
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-}
-
-Canvas::Canvas()
-{
-	setRenderStatus();
 	double vertices[] =
 	{
 		-1.0f,  1.0f, 0.0f,
@@ -64,19 +32,51 @@ Canvas::Canvas()
 		0, 2, 3
 	};
 
-	VAO = std::make_unique<Drmix::OpenGL::VertexArrayBuffer>();
-	VBO = std::make_unique<Drmix::OpenGL::VertexBuffer>(vertices, 3 * 4 * sizeof(double));
-	EBO = std::make_unique<Drmix::OpenGL::IndexBuffer>(indices, 6);
-	shader = std::make_unique<Drmix::OpenGL::Shader>("../../../../Mixture/ShaderToyMixture/ShaderToy.vert", "../../../../Mixture/ShaderToyMixture/ShaderToy.frag");
+	m_VAO = new Drmix::OpenGL::VertexArrayBuffer();
+	m_VBO = new Drmix::OpenGL::VertexBuffer(vertices, 3 * 4 * sizeof(double));
+	m_EBO = new Drmix::OpenGL::IndexBuffer(indices, 6);
+	m_Shader = new Drmix::OpenGL::Shader("ShaderToy.vert", "ShaderToy.frag");
 
 	Drmix::OpenGL::VertexBufferLayout layout;
 	layout.push<double>(3);
 
-	VAO->addBuffer(*VBO.get(), layout);
-	shader->bind();
+	m_VAO->addBuffer(*m_VBO, layout);
+	m_Shader->bind();
 }
 
-Canvas::~Canvas()
+void ShaderToyMixture::update()
 {
 
+}
+
+void ShaderToyMixture::fixedUpdate(double deltaTime)
+{
+	m_Shader->bind();
+	m_Shader->setUniform1f("iTime", (float)getTime());
+}
+
+void ShaderToyMixture::imGuiRender()
+{
+	if (ImGui::Button("Exit"))
+		info.mixtureShouldClose = true;
+
+	if (ImGui::Button("Reload Shader"))
+	{
+		m_Shader->reload("ShaderToy.vert", "ShaderToy.frag");
+	}
+
+	ImGui::Text("FPS: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+}
+
+void ShaderToyMixture::render()
+{
+	mixtureRenderer.render(*m_VAO, *m_EBO, *m_Shader);
+}
+
+void ShaderToyMixture::onExit()
+{
+	delete m_VAO;
+	delete m_VBO;
+	delete m_EBO;
+	delete m_Shader;
 }

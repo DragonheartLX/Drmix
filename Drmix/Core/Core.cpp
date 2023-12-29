@@ -1,4 +1,5 @@
 #include "Core/Core.hpp"
+#include "Core/Logger.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -7,15 +8,13 @@ namespace Drmix
 	Drmix* Drmix::m_Instance = nullptr;
 
 	Drmix::Drmix():
-		mainWindow(NULL),
-		mainRenderer(nullptr)
+		mainWindow(NULL)
 	{
 
 	}
 
 	Drmix::~Drmix()
 	{
-		delete mainRenderer;
 		delete m_Instance;
 	}
 
@@ -36,7 +35,7 @@ bool GLLogCall(const char* function, const char* file, int line)
 {
 	while (GLenum error = glGetError()) 
 	{
-		spdlog::warn("[OpenGL Error] ({0}): {1} {2}:{3}", error, function, file, line);
+		DRMIX_LOG_WARN("[OpenGL Error] ({0}): {1} {2}:{3}", error, function, file, line);
 		return false;
 	}
 	return true;

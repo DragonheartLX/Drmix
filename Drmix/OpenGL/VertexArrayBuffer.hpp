@@ -24,19 +24,7 @@ namespace Drmix
 
 			template<typename T>
 			void push(unsigned int count);
-
-			template<>
-			void push<double>(unsigned int count);
 			
-			template<>
-			void push<float>(unsigned int count);
-
-			template<>
-			void push<unsigned int>(unsigned int count);
-
-			template<>
-			void push<unsigned char>(unsigned int count);
-
 			inline const std::vector<VertexBufferElement> getElements() const { return m_Elements; }
 			inline unsigned int getStride() const { return m_Stride; }
 		private:

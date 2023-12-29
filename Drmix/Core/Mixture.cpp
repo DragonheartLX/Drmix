@@ -1,8 +1,8 @@
 #include "Core/Mixture.hpp"
 #include "Core/Core.hpp"
+#include "Core/Filesystem.hpp"
+#include "Core/Logger.hpp"
 
-#include <filesystem>
-#include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
@@ -11,13 +11,11 @@ namespace Drmix
 {
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	{
-		spdlog::info("Set viewport to: {0:d}x{1:d}", width, height);
+		DRMIX_LOG_INFO("Set viewport to: {0:d}x{1:d}", width, height);
 		glViewport(0, 0, width, height);
 	};
 
-	Mixture::Mixture():
-		m_MixtureShouldClose(false),
-		m_imGuiRender(false)
+	Mixture::Mixture()
 	{
 
 	}
@@ -29,7 +27,7 @@ namespace Drmix
 		ImGui::DestroyContext();
 		glfwTerminate();
 
-		spdlog::info("{0} exit.", info.name);
+		DRMIX_LOG_INFO("{0} exit.", info.name);
 	}
 
 	void Mixture::init()
@@ -49,15 +47,16 @@ namespace Drmix
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-		spdlog::info("WorkPath: {0}", std::filesystem::current_path().string());
+		Filesystem::setResourcePath(info.resourcePath);
+		DRMIX_LOG_INFO("WorkPath: {0}", Filesystem::getWorkDir());
+		DRMIX_LOG_INFO("ResourcePath: {0}", Filesystem::getResourcePath());
 
 		Drmix* drmix = Drmix::getInstance();
 		drmix->mainWindow = glfwCreateWindow(info.winWidth, info.winHeight, info.name.c_str(), NULL, NULL);
-		drmix->mainRenderer = new OpenGL::Renderer();
 
 		if (drmix->mainWindow == NULL)
 		{
-			spdlog::error("Failed to create GLFW window");
+			DRMIX_LOG_ERROR("Failed to create GLFW window");
 			glfwTerminate();
 			exit(-1);
 		}
@@ -65,15 +64,15 @@ namespace Drmix
 		glfwMakeContextCurrent(drmix->mainWindow);
 		glfwSwapInterval(1); // Enable vsync
 		// glfwSetFramebufferSizeCallback(drmix->mainWindow, framebuffer_size_callback);
-		spdlog::info("GLFW window init.");
+		DRMIX_LOG_INFO("GLFW window init.");
 
 		// glad init
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			spdlog::warn("Failed to initialize GLAD");
+			DRMIX_LOG_INFO("Failed to initialize GLAD");
 			exit(-1);
 		};
-		spdlog::info("glad init.");
+		DRMIX_LOG_INFO("glad init.");
 
 		framebuffer_size_callback(drmix->mainWindow, info.winWidth, info.winHeight);
 
@@ -81,7 +80,7 @@ namespace Drmix
 		{
 			unsigned char* glVersion;
 			glVersion = (unsigned char*)glGetString(GL_VERSION);
-			spdlog::info("Status: Using GL {0}", (char*)glVersion);
+			DRMIX_LOG_INFO("Status: Using GL {0}", (char*)glVersion);
 		}
 
 		// ImGui init
@@ -110,7 +109,7 @@ namespace Drmix
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
-		spdlog::info("imGui init.");
+		DRMIX_LOG_INFO("imGui init.");
 
 		GLCall(glEnable(GL_DEPTH_TEST));
 		GLCall(glEnable(GL_BLEND));
@@ -127,7 +126,7 @@ namespace Drmix
 		double lastRenderTime = currentTime;
 		double time = 0.0f;
 		double delta = 0.0f;
-		while (!m_MixtureShouldClose && !(glfwWindowShouldClose(Drmix::getInstance()->mainWindow) == GLFW_TRUE))
+		while (!info.mixtureShouldClose && !(glfwWindowShouldClose(Drmix::getInstance()->mainWindow) == GLFW_TRUE))
 		{
 			glfwPollEvents();
 
@@ -152,9 +151,9 @@ namespace Drmix
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
 
-				if (m_imGuiRender)
+				if (info.imGuiRender)
 				{
-					ImGui::Begin(info.name.c_str(), &m_imGuiRender);
+					ImGui::Begin(info.name.c_str(), &info.imGuiRender);
 					ImGui::SetWindowFontScale(1.6f);
 					imGuiRender();
 					ImGui::End();
@@ -186,45 +185,12 @@ namespace Drmix
 
 	}
 
-	void Mixture::render()
-	{
-		render(objects);
-	};
-
-	void Mixture::render(std::unordered_map<std::string, Node*> nodes)
-	{
-		if (nodes.empty())
-			return;
-
-		for (std::pair childNode: nodes)
-		{
-			if (childNode.second->getChildren().empty())
-			{
-				childNode.second->render();
-			}
-			else 
-			{
-				render(childNode.second->getChildren());
-			}
-		}
-	};
-
 	void Mixture::setFramebufferSize(int width, int height)
 	{
 		info.winWidth = width;
 		info.winHeight = height;
 
 		framebuffer_size_callback(Drmix::getInstance()->mainWindow, width, height);
-	}
-
-	void Mixture::setMixtureShouldClose(bool status)
-	{
-		m_MixtureShouldClose = status;
-	}
-
-	void Mixture::setRenderImGui(bool status)
-	{
-		m_imGuiRender = status;
 	}
 
 	double Mixture::getTime()

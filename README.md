@@ -2,8 +2,9 @@
 DragonheartLX的练习集
 
 ### 编译
-- CMake Version >= 3.13
+- CMake Version >= 3.19
 - Visual Studio 2022 (recommend)
+- MinGW x64 13.2
 - Only tested on Windows with x64
 - Vcpkg
 
@@ -13,24 +14,15 @@ DragonheartLX的练习集
     cd Drmix 
     ```
 
-2. 使用vcpkg安装依赖
-    ```cmd
-    vcpkg install glfw3 glad glm spdlog stb imgui[glfw-binding,opengl3-binding,docking-experimental]
-    ```
-
-    #### 注意! 如果提示imgui头文件include错误, 请尝试重新安装
-    ```cmd
-    vcpkg remove imgui
-    vcpkg install imgui[glfw-binding,opengl3-binding,docking-experimental]
-    ```
-
-3. 使用 CMake 编译
+2. 使用 CMake 编译
     ```cmd
     mkdir build
     cd build
     cmake ..
     cmake --build .
     ```
+
+    ### 依赖会由vcpkg自动安装
 
 ### Projects
 - 已完成
@@ -45,7 +37,7 @@ DragonheartLX的练习集
 |       Dependence name     |    Version(vcpkg version)     |
 |       :-------------      |              :------          |
 | glfw3                     | 3.3.8#2                       |
-| glad                      | 0.1.36 core                   |
+| glad                      | 0.1.36                        |
 | glm                       | 2023-06-08                    |
 | stb                       | 2023-04-11#1                  |
 | spdlog                    | 1.12.0                        |

@@ -1,16 +1,7 @@
 #pragma once
 #include <Drmix.hpp>
 
-class Canvas:public Drmix::Node
-{
-public:
-	Canvas();
-	~Canvas();
-private:
-
-};
-
-class ShaderToyMixture:public Drmix::Mixture
+class ShaderToyMixture: public Drmix::Mixture
 {
 public:
 	ShaderToyMixture();
@@ -20,16 +11,17 @@ public:
 	void update() override;
 	void fixedUpdate(double deltaTime) override;
 	void imGuiRender() override;
-private:
+	void render() override;
+	void onExit() override;
 
+private:
+	Drmix::OpenGL::VertexArrayBuffer* m_VAO;
+	Drmix::OpenGL::VertexBuffer* m_VBO;
+	Drmix::OpenGL::IndexBuffer* m_EBO;
+	Drmix::OpenGL::Shader* m_Shader;
 };
 
 Drmix::Mixture* Drmix::createMixture(int argc, char** argv)
 {
-	Drmix::MixtureInfo info;
-	info.name = "ShaderToyMixture";
-	Drmix::Mixture* mixture = new ShaderToyMixture();
-	mixture->info = info;
-
-	return mixture;
+	return new ShaderToyMixture();
 };

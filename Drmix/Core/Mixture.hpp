@@ -2,16 +2,19 @@
 #include <string>
 #include <unordered_map>
 
-#include "Object/Node.hpp"
+#include "OpenGL/Renderer.hpp"
 
 namespace Drmix
 {
 	struct MixtureInfo
 	{
 		std::string name = "Drmix Mixture";
+		std::string resourcePath = "./";
 		int winWidth = 1920;
 		int winHeight = 1080;
 		int framePerSecond = 90;
+		bool mixtureShouldClose = false;
+		bool imGuiRender = false;
 	};
 
 	class Mixture
@@ -28,20 +31,16 @@ namespace Drmix
 		virtual void update() {};
 		virtual void fixedUpdate(double deltaTime) {};
 		virtual void imGuiRender() {};
-
-		void render();
-		void render(std::unordered_map<std::string, Node*> nodes);
+		virtual void render() {};
+		virtual void onExit() {};
 
 		void setFramebufferSize(int width, int height);
-		void setMixtureShouldClose(bool status = true);
-		void setRenderImGui(bool status = true);
 		double getTime();
 
 		MixtureInfo info;
-		std::unordered_map<std::string, Node*> objects;
+		OpenGL::Renderer mixtureRenderer;
 	private:
-		bool m_MixtureShouldClose;
-		bool m_imGuiRender;
+
 	};
 
 	Mixture* createMixture(int argc, char** argv);

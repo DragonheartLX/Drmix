@@ -1,9 +1,10 @@
 #include "OpenGL/Shader.hpp"
 #include "Core/Core.hpp"
+#include "Core/Filesystem.hpp"
+#include "Core/Logger.hpp"
 
 #include <fstream>
 #include <glad/glad.h>
-#include <spdlog/spdlog.h>
 
 namespace Drmix
 {
@@ -27,8 +28,8 @@ namespace Drmix
 				GLCall(glGetShaderiv(m_ShaderID, GL_INFO_LOG_LENGTH, &length));
 				char* msg = (char*)_malloca(length * sizeof(char));
 				GLCall(glGetProgramInfoLog(m_ShaderID, length, &length, msg));
-				spdlog::warn("Error: shader link error.");
-				spdlog::warn(msg);
+				DRMIX_LOG_WARN("Error: shader link error.");
+				DRMIX_LOG_WARN(msg);
 			}
 
 			GLCall(glDeleteShader(vert));
@@ -70,8 +71,8 @@ namespace Drmix
 				GLCall(glGetShaderiv(m_ShaderID, GL_INFO_LOG_LENGTH, &length));
 				char* msg = (char*)_malloca(length * sizeof(char));
 				GLCall(glGetProgramInfoLog(m_ShaderID, length, &length, msg));
-				spdlog::warn("Error: shader link error.");
-				spdlog::warn(msg);
+				DRMIX_LOG_WARN("Error: shader link error.");
+				DRMIX_LOG_WARN(msg);
 			}
 
 			GLCall(glDeleteShader(vert));
@@ -106,10 +107,10 @@ namespace Drmix
 		unsigned int Shader::m_CompileShader(std::string path, ShaderType type)
 		{
 			// Read source
-			std::ifstream file(path.c_str(), std::ios_base::in);
+			std::ifstream file(Filesystem::getResourcePath(path).c_str(), std::ios_base::in);
 			if (!file.is_open())
 			{
-				spdlog::warn("Error: {0} shader file open error.", (type == ShaderType::Vertex ? "Vertex" : "Fragment"));
+				DRMIX_LOG_WARN("Error: {0} shader file open error.", (type == ShaderType::Vertex ? "Vertex" : "Fragment"));
 				file.close();
 				return 0;
 			}
@@ -134,8 +135,8 @@ namespace Drmix
 				GLCall(glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length));
 				char* msg = (char*)_malloca(length * sizeof(char));
 				GLCall(glGetShaderInfoLog(shaderID, length, &length, msg));
-				spdlog::warn("Error: {0} shader compile error.", (type == ShaderType::Vertex ? "Vertex" : "Fragment"));
-				spdlog::warn(msg);
+				DRMIX_LOG_WARN("Error: {0} shader compile error.", (type == ShaderType::Vertex ? "Vertex" : "Fragment"));
+				DRMIX_LOG_WARN(msg);
 				GLCall(glDeleteShader(shaderID));
 				return 0;
 			}
