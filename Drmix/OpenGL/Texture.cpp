@@ -139,6 +139,7 @@ namespace Drmix
 		void Texture::updateTexture(unsigned char* data, int width, int height, int BPP)
 		{
 			m_FilePath = "";
+			m_LocalBuffer = data;
 
 			if (m_Width != width || m_Height != height || m_BPP != BPP)
 			{

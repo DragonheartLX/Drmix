@@ -18,7 +18,7 @@
         },
         {
             "name": "MSVC-x64-Debug",
-            "displayName": "VS 2022 Release - amd64",
+            "displayName": "VS 2022 Release - amd64 Debug",
             "description": "将编译器用于 VS 17 2022 (x64 体系结构)",
             "generator": "Visual Studio 17 2022",
             "toolset": "host=x64",
