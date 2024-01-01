@@ -1,6 +1,6 @@
-#include "Sphere.hpp"
-
 #include "Object/Sphere.hpp"
+
+#include <cmath>
 
 Sphere::Sphere(Vec3 center, double radius):
 	m_Center(center),
