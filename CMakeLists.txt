@@ -17,6 +17,19 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
 endif()
 
-add_subdirectory(Drmix)
-add_subdirectory(Mixture)
+file(GLOB_RECURSE PROJ_Src LIST_DIRECTORIES false 
+    src/*.cpp
+    src/**/*.cpp)
 
+add_executable(Drmix ${PROJ_Src})
+
+target_include_directories(Drmix PRIVATE include)
+
+find_package(glfw3 CONFIG REQUIRED)
+    target_link_libraries(Drmix PRIVATE glfw)
+
+find_package(Vulkan REQUIRED)
+    target_link_libraries(Drmix PRIVATE Vulkan::Vulkan)
+
+find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(Drmix PRIVATE fmt::fmt-header-only) 
