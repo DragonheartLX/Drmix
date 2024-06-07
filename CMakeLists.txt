@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/lib>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/lib>)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+
 project(Drmix)
 
 # MSVC设置: 静态库设置
@@ -32,4 +37,8 @@ find_package(Vulkan REQUIRED)
     target_link_libraries(Drmix PRIVATE Vulkan::Vulkan)
 
 find_package(fmt CONFIG REQUIRED)
-    target_link_libraries(Drmix PRIVATE fmt::fmt-header-only) 
+    target_link_libraries(Drmix PRIVATE fmt::fmt)
+
+find_package(PkgConfig REQUIRED)
+    pkg_check_modules(tomlplusplus REQUIRED IMPORTED_TARGET tomlplusplus)
+    target_link_libraries(Drmix PRIVATE PkgConfig::tomlplusplus)

@@ -1,5 +1,6 @@
 #include "Drmix.h"
 #include "Logger.h"
+#include <cstdlib>
 #include <exception>
 
 int main() 

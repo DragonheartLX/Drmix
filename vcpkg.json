@@ -1,10 +1,11 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "drmix",
   "version": "0.0.0-dev",
   "dependencies": [
     {
       "name": "imgui",
-      "version>=": "1.89.9",
+      "version>=": "1.90.7",
       "default-features": false,
       "features": [
         "docking-experimental",
@@ -14,15 +15,15 @@
     },
     {
       "name": "glm",
-      "version>=": "2023-06-08"
+      "version>=": "1.0.1#2"
     },
     {
       "name": "vulkan",
-      "version>=": "1.1.82.1#6"
+      "version>=": "2023-12-17"
     },
     {
       "name": "glfw3",
-      "version>=": "3.3.8#2"
+      "version>=": "3.4"
     },
     {
       "name": "stb",
@@ -30,8 +31,24 @@
     },
     {
       "name": "fmt",
-      "version>=": "10.1.1"
+      "version>=": "10.2.1#2"
+    },
+    {
+      "name": "tomlplusplus",
+      "version>=": "3.4.0"
+    },
+    {
+      "name": "pkgconf",
+      "version>=": "2.2.0",
+      "host": true
     }
   ],
-  "builtin-baseline": "b40de44891dc1cab11d4722094ae44807a837b98"
+  "builtin-baseline": "6e31ee33cc9fc93599c4ceb38e229098cf339bb7",
+  "vcpkg-configuration": 
+  {
+    "overlay-triplets": 
+    [
+      "./triplet"
+    ]
+  }
 }
