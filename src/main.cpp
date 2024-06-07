@@ -7,6 +7,8 @@ int main()
 {
     DrmixApplication app;
 
+    Logger::info("Drmix Start");
+
     try 
     {
         app.run();
@@ -16,6 +18,8 @@ int main()
         Logger::error(e.what());
         return EXIT_FAILURE;
     }
+
+    Logger::info("Drmix Exit");
 
     return EXIT_SUCCESS;
 }
