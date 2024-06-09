@@ -42,3 +42,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(PkgConfig REQUIRED)
     pkg_check_modules(tomlplusplus REQUIRED IMPORTED_TARGET tomlplusplus)
     target_link_libraries(Drmix PRIVATE PkgConfig::tomlplusplus)
+
+find_program(GLSLC_PROGRAM glslc REQUIRED)
+    execute_process(COMMAND ${GLSLC_PROGRAM} ${CMAKE_SOURCE_DIR}/res/shader.vert -o ${CMAKE_SOURCE_DIR}/cache/vert.spv)
+    execute_process(COMMAND ${GLSLC_PROGRAM} ${CMAKE_SOURCE_DIR}/res/shader.frag -o ${CMAKE_SOURCE_DIR}/cache/frag.spv)
