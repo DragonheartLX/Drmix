@@ -7,6 +7,7 @@
 #include <cstring>
 #include <fstream>
 #include <set>
+#include <stdexcept>
 #include <toml++/impl/parser.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -49,6 +50,12 @@ static std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+{
+    DrmixApplication* app = reinterpret_cast<DrmixApplication*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+}
+
 void DrmixApplication::run() 
 {
     setting = toml::parse_file("./res/settings.toml");
@@ -62,9 +69,13 @@ void DrmixApplication::run()
 void DrmixApplication::initWindow() 
 {
     glfwInit();
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
     window = glfwCreateWindow(WIDTH, HEIGHT, "Drmix", nullptr, nullptr);
+
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
 void DrmixApplication::initVulkan() 
@@ -73,7 +84,6 @@ void DrmixApplication::initVulkan()
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
-    querySwapChainSupport();
     createSwapChain();
     createImageViews();
     createRenderPass();
@@ -97,6 +107,13 @@ void DrmixApplication::mainLoop()
 
 void DrmixApplication::cleanup() 
 {
+    cleanupSwapChain();
+
+    vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+    
+    vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
+
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
@@ -106,17 +123,6 @@ void DrmixApplication::cleanup()
 
     vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
-    for (VkFramebuffer framebuffer : swapChainFramebuffers)
-        vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
-
-    vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
-    vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
-
-    for (VkImageView view: swapChainImageViews)
-        vkDestroyImageView(logicalDevice, view, nullptr);
-
-    vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
     vkDestroyDevice(logicalDevice, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
@@ -160,7 +166,7 @@ void DrmixApplication::createInstance()
         }
     }
     
-    VkApplicationInfo appInfo;
+    VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Drmix";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -169,7 +175,7 @@ void DrmixApplication::createInstance()
     appInfo.apiVersion = VK_API_VERSION_1_0;
     appInfo.pNext = nullptr;
 
-    VkInstanceCreateInfo createInfo;
+    VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
@@ -328,7 +334,7 @@ void DrmixApplication::createLogicalDevice()
     float queuePriority = 1.0f;
     for (uint32_t queueFamily : uniqueQueueFamilies)
     {
-        VkDeviceQueueCreateInfo createInfo;
+        VkDeviceQueueCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         createInfo.queueFamilyIndex = queueFamily;
         createInfo.queueCount = 1;
@@ -339,9 +345,9 @@ void DrmixApplication::createLogicalDevice()
         queueCreateInfos.push_back(createInfo);
     }
 
-    VkPhysicalDeviceFeatures deviceFeatures{};
+    VkPhysicalDeviceFeatures deviceFeatures = {};
     
-    VkDeviceCreateInfo deviceCreateInfo {};
+    VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
     deviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
@@ -370,6 +376,7 @@ void DrmixApplication::createLogicalDevice()
 
 void DrmixApplication::createSwapChain()
 {
+    querySwapChainSupport();
     VkSurfaceFormatKHR surfaceFormat = details.formats[0];
     for (VkSurfaceFormatKHR sf : details.formats)
     {
@@ -410,7 +417,7 @@ void DrmixApplication::createSwapChain()
     if (details.capabilities.maxImageCount > 0 && imageCount > details.capabilities.maxImageCount)
         imageCount = details.capabilities.maxImageCount;
 
-    VkSwapchainCreateInfoKHR createInfo;
+    VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
 
@@ -757,7 +764,7 @@ void DrmixApplication::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32
 
     VkCall(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin recording command buffer!");
 
-    VkRenderPassBeginInfo renderPassInfo{};
+    VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
@@ -793,13 +800,54 @@ void DrmixApplication::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32
     VkCall(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
 }
 
+void DrmixApplication::cleanupSwapChain()
+{
+    for (VkFramebuffer framebuffer : swapChainFramebuffers)
+        vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+
+    for (VkImageView view: swapChainImageViews)
+        vkDestroyImageView(logicalDevice, view, nullptr);
+
+    vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+}
+
+void DrmixApplication::recreateSwapChain()
+{
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(window, &width, &height);
+    while (width == 0 || height == 0)
+    {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(logicalDevice);
+
+    cleanupSwapChain();
+
+    createSwapChain();
+    createImageViews();
+    createFramebuffers();
+}
+
 void DrmixApplication::drawFrame()
 {
     vkWaitForFences(logicalDevice, 1, &inFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
-    vkResetFences(logicalDevice, 1, &inFlightFence[currentFrame]);
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        recreateSwapChain();
+        return;
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    vkResetFences(logicalDevice, 1, &inFlightFence[currentFrame]);
 
     vkResetCommandBuffer(commandBuffer[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
     recordCommandBuffer(commandBuffer[currentFrame], imageIndex);
@@ -834,7 +882,17 @@ void DrmixApplication::drawFrame()
 
     presentInfo.pImageIndices = &imageIndex;
 
-    vkQueuePresentKHR(queue.presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(queue.presentQueue, &presentInfo);
     
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    {
+        framebufferResized = false;
+        recreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

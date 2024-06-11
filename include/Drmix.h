@@ -43,6 +43,8 @@ class DrmixApplication
 {
 public:
     void run();
+
+    bool framebufferResized = false;
 private:
     GLFWwindow* window;
 
@@ -93,6 +95,7 @@ private:
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     void querySwapChainSupport();
-
+    void cleanupSwapChain();
+    void recreateSwapChain();
     void drawFrame();
 };
