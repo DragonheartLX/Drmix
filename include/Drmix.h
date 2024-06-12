@@ -74,13 +74,15 @@ private:
     Queue queue;
     SwapChainSupportDetails details;
     uint32_t currentFrame = 0;
-    
+    VkDebugUtilsMessengerEXT debugMessenger;
+
     void initWindow();
     void initVulkan();
     void mainLoop();
     void cleanup();
 
     void createInstance();
+    void setupDebugMessenger();
     void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();

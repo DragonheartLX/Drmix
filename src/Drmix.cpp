@@ -56,6 +56,68 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     app->framebufferResized = true;
 }
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData)
+{
+    switch (messageSeverity)
+    {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            Logger::trace("validation layer: {0}", pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            Logger::info("validation layer: {0}", pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            Logger::warn("validation layer: {0}", pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            Logger::error("validation layer: {0}", pCallbackData->pMessage);
+            break;
+        default:
+            Logger::debug("validation layer: {0}", pCallbackData->pMessage);
+            break;
+    }
+    return VK_FALSE;
+}
+
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, 
+    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
+    const VkAllocationCallbacks* pAllocator, 
+    VkDebugUtilsMessengerEXT* pDebugMessenger)
+{
+    PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr)
+    {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } 
+    else 
+    {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+{
+    PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr)
+    {
+        func(instance, debugMessenger, pAllocator);
+    }
+}
+
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+    createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = debugCallback;
+}
+
 void DrmixApplication::run() 
 {
     setting = toml::parse_file("./res/settings.toml");
@@ -81,6 +143,7 @@ void DrmixApplication::initWindow()
 void DrmixApplication::initVulkan() 
 {
     createInstance();
+    setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
@@ -124,6 +187,9 @@ void DrmixApplication::cleanup()
     vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
     vkDestroyDevice(logicalDevice, nullptr);
+
+    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
     
@@ -191,13 +257,19 @@ void DrmixApplication::createInstance()
         }
     }
 
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
     createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.data();
     createInfo.flags = 0;
-    createInfo.pNext = nullptr;
+
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
+    populateDebugMessengerCreateInfo(debugCreateInfo);
+
+    createInfo.pNext = &debugCreateInfo;
 
     VkCall(vkCreateInstance(&createInfo, nullptr, &instance), "Failed to create instance!");
 
@@ -208,6 +280,14 @@ void DrmixApplication::createInstance()
     Logger::debug("Enabled instance extensions:");
     for (const char* property : extensions) 
         Logger::debug("\t{}", property);
+}
+
+void DrmixApplication::setupDebugMessenger()
+{
+    VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+    populateDebugMessengerCreateInfo(createInfo);
+
+    VkCall(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger!");
 }
 
 void DrmixApplication::createSurface()
