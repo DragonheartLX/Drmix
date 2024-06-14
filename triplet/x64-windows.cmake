@@ -18,3 +18,7 @@ endif()
 if(${PORT} MATCHES "tomlplusplus")
     set(VCPKG_LIBRARY_LINKAGE static)
 endif()
+
+if(${PORT} MATCHES "glm")
+    set(VCPKG_LIBRARY_LINKAGE static)
+endif()
