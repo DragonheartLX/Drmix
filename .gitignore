@@ -11,3 +11,9 @@
 # Build Folder
 build/
 build-*/
+
+# Clangd cache
+.cache/
+
+# Cache
+cache/
