@@ -22,15 +22,17 @@ DragonheartLX的练习集
     cmake --build .
     ```
 
-    ### 依赖会由vcpkg自动安装
+    #### 依赖会由vcpkg自动安装
 
 ### 依赖
 |       Dependence name     |    Version(vcpkg version)     |
 |       :-------------      |              :------          |
-| glfw3                     | 3.3.8#2                       |
-| glm                       | 2023-06-08                    |
+| glfw3                     | 3.4                           |
+| glm                       | 1.0.1#2                       |
 | stb                       | 2023-04-11#1                  |
 | spdlog                    | 1.12.0                        |
-| imgui                     | 1.89.9                        |
-| vulkan                    | 1.1.82.1#6                    |
-| fmt                       | 10.1.1                        |
+| imgui                     | 1.90.7                        |
+| vulkan                    | 2023-12-17                    |
+| fmt                       | 10.2.1#2                      |
+| tomlplusplus              | 3.4.0                         |
+| glslang                   | 14.2.0                        |
