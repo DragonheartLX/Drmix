@@ -134,6 +134,8 @@ void DrmixApplication::initWindow()
 
 void DrmixApplication::initVulkan() 
 {
+    SpirVBinary::initialize();
+
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -222,6 +224,8 @@ void DrmixApplication::cleanup()
     
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    SpirVBinary::finalize();
 }
 
 void DrmixApplication::createInstance()
@@ -676,27 +680,21 @@ void DrmixApplication::createDescriptorSetLayout()
 
 void DrmixApplication::createGraphicsPipeline()
 {
-    std::vector<char> vertShaderSource = utils::readFile("res/shader.vert");
-    std::vector<char> fragShaderSource = utils::readFile("res/shader.frag");
-    
-    vertShaderSource.push_back('\0');
-    fragShaderSource.push_back('\0');
-    
-    SpirVBinary vertShaderCode = compileShader(glslang_stage_t::GLSLANG_STAGE_VERTEX, vertShaderSource.data(), "shader.vert");
-    SpirVBinary fragShaderCode = compileShader(glslang_stage_t::GLSLANG_STAGE_FRAGMENT, fragShaderSource.data(), "shader.frag");
+    SpirVBinary vertShaderCode(glslang_stage_t::GLSLANG_STAGE_VERTEX, "res/shader.vert");
+    SpirVBinary fragShaderCode(glslang_stage_t::GLSLANG_STAGE_FRAGMENT, "res/shader.frag");
 
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
 
     VkShaderModuleCreateInfo vInfo = {};
     vInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    vInfo.codeSize = vertShaderCode.size;
+    vInfo.codeSize = vertShaderCode.bytesCount;
     vInfo.pCode = vertShaderCode.code;
     VkCall(vkCreateShaderModule(logicalDevice, &vInfo, nullptr, &vertShaderModule), "failed to create vertex shader module!");
 
     VkShaderModuleCreateInfo fInfo = {};
     fInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    fInfo.codeSize = fragShaderCode.size;
+    fInfo.codeSize = fragShaderCode.bytesCount;
     fInfo.pCode = fragShaderCode.code;
     VkCall(vkCreateShaderModule(logicalDevice, &fInfo, nullptr, &fragShaderModule), "failed to create fragment shader module!");
 
