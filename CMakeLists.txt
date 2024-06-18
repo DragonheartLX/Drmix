@@ -48,7 +48,6 @@ find_package(glm CONFIG REQUIRED)
 
 find_package(Stb REQUIRED)
     target_include_directories(Drmix PRIVATE ${Stb_INCLUDE_DIR})
-
-find_program(GLSLC_PROGRAM glslc REQUIRED)
-    execute_process(COMMAND ${GLSLC_PROGRAM} ${CMAKE_SOURCE_DIR}/res/shader.vert -o ${CMAKE_SOURCE_DIR}/cache/vert.spv)
-    execute_process(COMMAND ${GLSLC_PROGRAM} ${CMAKE_SOURCE_DIR}/res/shader.frag -o ${CMAKE_SOURCE_DIR}/cache/frag.spv)
+    
+find_package(glslang CONFIG REQUIRED)
+    target_link_libraries(Drmix PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV glslang::SPVRemapper)

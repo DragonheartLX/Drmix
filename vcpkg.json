@@ -41,6 +41,10 @@
       "name": "pkgconf",
       "version>=": "2.2.0",
       "host": true
+    },
+    {
+      "name": "glslang",
+      "version>=": "14.2.0"
     }
   ],
   "builtin-baseline": "6e31ee33cc9fc93599c4ceb38e229098cf339bb7",

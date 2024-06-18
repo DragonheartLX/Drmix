@@ -1,5 +1,6 @@
 #include "Drmix.h"
 #include "Logger.h"
+#include "SpirvCompiler.h"
 #include "Utility.h"
 #include "Vertex.h"
 
@@ -7,7 +8,6 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
 #include <set>
 #include <stdexcept>
 #include <toml++/impl/parser.hpp>
@@ -28,38 +28,18 @@
 #include <stb_image.h>
 
 static const char* physicalDeviceTypeString(VkPhysicalDeviceType type)
-	{
-		switch (type)
-		{
-#define STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
-			STR(OTHER);
-			STR(INTEGRATED_GPU);
-			STR(DISCRETE_GPU);
-			STR(VIRTUAL_GPU);
-			STR(CPU);
-#undef STR
-		default: return "UNKNOWN_DEVICE_TYPE";
-		}
-	}
-
-static std::vector<char> readFile(const std::string& filename)
 {
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
+    switch (type)
     {
-        throw std::runtime_error("failed to open file!");
+#define STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
+        STR(OTHER);
+        STR(INTEGRATED_GPU);
+        STR(DISCRETE_GPU);
+        STR(VIRTUAL_GPU);
+        STR(CPU);
+#undef STR
+    default: return "UNKNOWN_DEVICE_TYPE";
     }
-
-    size_t fileSize = (size_t) file.tellg();
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    return buffer;
 }
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -183,6 +163,10 @@ void DrmixApplication::mainLoop()
     while (!glfwWindowShouldClose(window)) 
     {
         glfwPollEvents();
+
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+
         drawFrame();
     }
 
@@ -692,22 +676,28 @@ void DrmixApplication::createDescriptorSetLayout()
 
 void DrmixApplication::createGraphicsPipeline()
 {
-    std::vector<char> vertShaderCode = readFile("cache/vert.spv");
-    std::vector<char> fragShaderCode = readFile("cache/frag.spv");
+    std::vector<char> vertShaderSource = utils::readFile("res/shader.vert");
+    std::vector<char> fragShaderSource = utils::readFile("res/shader.frag");
+    
+    vertShaderSource.push_back('\0');
+    fragShaderSource.push_back('\0');
+    
+    SpirVBinary vertShaderCode = compileShader(glslang_stage_t::GLSLANG_STAGE_VERTEX, vertShaderSource.data(), "shader.vert");
+    SpirVBinary fragShaderCode = compileShader(glslang_stage_t::GLSLANG_STAGE_FRAGMENT, fragShaderSource.data(), "shader.frag");
 
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
 
     VkShaderModuleCreateInfo vInfo = {};
     vInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    vInfo.codeSize = vertShaderCode.size();
-    vInfo.pCode = reinterpret_cast<const uint32_t*>(vertShaderCode.data());
+    vInfo.codeSize = vertShaderCode.size;
+    vInfo.pCode = vertShaderCode.code;
     VkCall(vkCreateShaderModule(logicalDevice, &vInfo, nullptr, &vertShaderModule), "failed to create vertex shader module!");
 
     VkShaderModuleCreateInfo fInfo = {};
     fInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    fInfo.codeSize = fragShaderCode.size();
-    fInfo.pCode = reinterpret_cast<const uint32_t*>(fragShaderCode.data());
+    fInfo.codeSize = fragShaderCode.size;
+    fInfo.pCode = fragShaderCode.code;
     VkCall(vkCreateShaderModule(logicalDevice, &fInfo, nullptr, &fragShaderModule), "failed to create fragment shader module!");
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
