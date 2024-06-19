@@ -51,3 +51,6 @@ find_package(Stb REQUIRED)
     
 find_package(glslang CONFIG REQUIRED)
     target_link_libraries(Drmix PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV glslang::SPVRemapper)
+
+find_package(tinyobjloader CONFIG REQUIRED)
+    target_link_libraries(Drmix PRIVATE tinyobjloader::tinyobjloader)
