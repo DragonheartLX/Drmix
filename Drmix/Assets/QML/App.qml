@@ -1,14 +1,16 @@
-import QtQuick 2.5
-import QtQuick.Controls 2.5
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import FluentUI 1.0
 
-Rectangle{
-    width: 200
-    height: 200
-
-    Button{
-        width: 200
-        height: 100
-        text: qsTr("Button A")
-        font.pixelSize: 16
+FluLauncher {
+    id: app
+    Component.onCompleted: {
+        FluApp.init(app)
+        FluRouter.routes = {
+            "/":"qrc:/Drmix/main.qml",
+        }
+        FluRouter.navigate("/")
     }
 }

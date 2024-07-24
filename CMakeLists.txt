@@ -12,5 +12,5 @@ endif()
 
 cmake_path(SET QT_SDK_DIR NORMALIZE ${QT_SDK_DIR})
 
-# add_subdirectory(FluentUI)
+add_subdirectory(FluentUI)
 add_subdirectory(Drmix)

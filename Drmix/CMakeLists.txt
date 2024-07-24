@@ -47,7 +47,7 @@ qt_add_executable(Drmix
 
 qt_add_qml_module(Drmix
     URI "Drmix"
-    RESOURCE_PREFIX "/qt/qml"
+    RESOURCE_PREFIX "/"
     VERSION 1.0
     QML_FILES ${qml_files}
 )
@@ -65,6 +65,7 @@ target_link_libraries(Drmix PRIVATE
     Qt6::Gui
     Qt6::Quick
     Qt6::Qml
+    fluentuiplugin
 )
 
 qt_import_qml_plugins(Drmix)

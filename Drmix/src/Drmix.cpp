@@ -1,8 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QTranslator>
-#include <QDir>
-#include <QDirIterator>
 
 int main(int argc, char** argv)
 {
@@ -21,7 +19,7 @@ int main(int argc, char** argv)
     }
     
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/qt/qml/Drmix/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/Drmix/App.qml"));
     QObject::connect
     (
         &engine, &QQmlApplicationEngine::objectCreated,
