@@ -1,0 +1,20 @@
+{
+    "name": "project-template",
+    "version": "0.0.0-dev",
+    "dependencies": 
+    [
+      "qtdeclarative",
+      "qt5compat",
+      "qttranslations",
+      {
+        "name":"qttools",
+        "default-features": false,
+        "features": [
+          "linguist",
+          "qml"
+        ],
+        "host": true
+      }
+    ]
+  }
+  

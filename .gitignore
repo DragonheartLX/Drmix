@@ -1,0 +1,7 @@
+# Build Folder
+build/
+bin/
+install/
+
+# Clangd
+.cache/
