@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.19)
 
 project(Drmix VERSION 1.0.0 LANGUAGES CXX)
 
-find_package(Qt6 6.7 COMPONENTS Core Widgets Quick Gui LinguistTools REQUIRED)
+find_package(Qt6 6.7 COMPONENTS Core Widgets Quick Gui PrintSupport Qml LinguistTools REQUIRED)
 
 qt_standard_project_setup(
     I18N_SOURCE_LANGUAGE en_US
@@ -41,6 +41,7 @@ qt_add_resources(PROJ_Src
 )
 
 qt_add_executable(Drmix
+    WIN32
     MANUAL_FINALIZATION
     ${PROJ_Src}
 )

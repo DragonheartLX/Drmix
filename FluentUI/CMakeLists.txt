@@ -33,8 +33,8 @@ option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick Qml Widgets PrintSupport)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Widgets PrintSupport)
 
-# set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}/../../..")
-# cmake_path(SET QT_SDK_DIR NORMALIZE ${QT_SDK_DIR})
+set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}/../../..")
+cmake_path(SET QT_SDK_DIR NORMALIZE ${QT_SDK_DIR})
 
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
 set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
@@ -235,6 +235,28 @@ if ((${QT_VERSION_MAJOR} LESS_EQUAL 6) AND (CMAKE_BUILD_TYPE MATCHES "Release"))
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
-    
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    set(SDK_DIR "${Qt6_DIR}/../../debug/Qt6/")
+else()
+    set(SDK_DIR "${Qt6_DIR}/../../Qt6/")
+endif()
+cmake_path(SET SDK_DIR NORMALIZE ${SDK_DIR})
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/qmldir ${SDK_DIR}/qml/FluentUI/qmldir
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/plugins.qmltypes ${SDK_DIR}/qml/FluentUI/plugins.qmltypes
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/fluentuiplugind.dll ${SDK_DIR}/qml/FluentUI/fluentuiplugind.dll
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/fluentuiplugind.pdb ${SDK_DIR}/qml/FluentUI/fluentuiplugind.pdb
+    )
+else()
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/qmldir ${SDK_DIR}/qml/FluentUI/qmldir
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/plugins.qmltypes ${SDK_DIR}/qml/FluentUI/plugins.qmltypes
+        COMMAND ${CMAKE_COMMAND} -E copy ${FLUENTUI_QML_PLUGIN_DIRECTORY}/fluentuiplugin.dll ${SDK_DIR}/qml/FluentUI/fluentuiplugin.dll
+    )
+endif()
+
 #安装
 install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${CMAKE_INSTALL_PREFIX}/imports)
