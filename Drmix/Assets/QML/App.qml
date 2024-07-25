@@ -9,8 +9,11 @@ FluLauncher {
     id: app
     Component.onCompleted: {
         FluApp.init(app)
+        FluTheme.darkMode = FluThemeType.Dark
+        FluTheme.animationEnabled = true
+
         FluRouter.routes = {
-            "/":"qrc:/Drmix/main.qml",
+            "/": "qrc:/Drmix/main.qml",
         }
         FluRouter.navigate("/")
     }
