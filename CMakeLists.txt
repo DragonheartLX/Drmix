@@ -1,8 +1,21 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required (VERSION 3.19)
 
-project(DrmixProject VERSION 1.0)
+set(CMAKE_CXX_STANDARD 20)
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/lib>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/lib>)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
 
-add_subdirectory(FluentUI)
-add_subdirectory(Drmix)
+project(Drmix)
+
+file(GLOB_RECURSE PROJ_Src LIST_DIRECTORIES false 
+    src/*.cpp
+    src/**/*.cpp)
+
+add_executable(Drmix ${PROJ_Src})
+
+target_include_directories(Drmix PRIVATE include)
+
+find_package(glfw3 CONFIG REQUIRED)
+    target_link_libraries(Drmix PRIVATE glfw)

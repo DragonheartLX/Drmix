@@ -11,7 +11,8 @@
       "cwd": "${command:cmake.launchTargetDirectory}",
       "environment": [],
       "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
+      "internalConsoleOptions": "openOnSessionStart",
+      "logging": {"moduleLoad": false}
     },
     {
       "name": "LLDB",
