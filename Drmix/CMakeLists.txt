@@ -44,6 +44,7 @@ qt_add_executable(Drmix
     WIN32
     MANUAL_FINALIZATION
     ${PROJ_Src}
+    Assets/resource.rc
 )
 
 qt_add_qml_module(Drmix

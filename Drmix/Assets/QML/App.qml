@@ -11,7 +11,7 @@ FluLauncher {
         FluApp.init(app)
         FluTheme.darkMode = FluThemeType.Dark
         FluTheme.animationEnabled = true
-
+        FluApp.windowIcon = "qrc:/icon.svg"
         FluRouter.routes = {
             "/": "qrc:/Drmix/main.qml",
         }

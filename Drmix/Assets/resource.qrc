@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>icon.svg</file>
     </qresource>
     <qresource prefix="/qt/etc">
         <file>qt.conf</file>
