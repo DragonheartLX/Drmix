@@ -13,6 +13,14 @@
         {
             "name": "glm",
             "version>=": "1.0.1#3"
+        },
+        {
+            "name": "spdlog",
+            "version>=": "1.15.1"
+        },
+        {
+            "name": "vulkan-validationlayers",
+            "version>=": "1.4.304.1"
         }
     ]
 }

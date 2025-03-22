@@ -25,3 +25,14 @@ find_package(glm CONFIG REQUIRED)
 
 find_package(Vulkan REQUIRED)
     target_link_libraries(Drmix PRIVATE Vulkan::Vulkan)
+
+find_package(spdlog REQUIRED)
+    target_link_libraries(Drmix PRIVATE spdlog::spdlog)
+
+# if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+#     string(REPLACE "/" "\\\\" VK_LAYER "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin")
+#     add_compile_definitions(VK_VALIDATIONLAYERS="${VK_LAYER}")
+# else()
+#     string(REPLACE "/" "\\\\" VK_LAYER "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")
+#     add_compile_definitions(VK_VALIDATIONLAYERS="${VK_LAYER}")
+# endif()
